@@ -57,7 +57,7 @@ URL = "https://fbwbzmlffgxnrzgvaeak.supabase.co"
 KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZid2J6bWxmZmd4bnJ6Z3ZhZWFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNDU0MzksImV4cCI6MjA4NjkyMTQzOX0.NI3rwempQ3lGbndUAUfsiKO8cEOEdJEF1PsBFAcmUyY"
 supabase = create_client(URL, KEY)
 
-st.title("🛰️ Estación Meteorológica PROPIC")
+st.title("🛰️ Estación Meteorológica PROCPIC")
 st.markdown("### Datos procesados en tiempo real")
 
 placeholder = st.empty()
