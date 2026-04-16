@@ -67,32 +67,56 @@ def data_manager(primary_provider: Callable[[], pd.DataFrame],
 # ==========================================================
 
 def apply_pro_styles():
-    st.markdown("""
+    st.markdown(
+        f"""
         <style>
-        .stApp {
-            background: #0e1117;
-            background-image: radial-gradient(circle at 20% 30%, #1a2a6c 0%, transparent 20%), 
-                              radial-gradient(circle at 80% 70%, #b21f1f 0%, transparent 20%);
-        }
-        /* Tarjetas con bordes muy redondeados (semicírculos en las esquinas) */
-        .metric-card {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 30px; /* Bordes muy suaves */
-            padding: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            text-align: center;
-            transition: transform 0.3s ease;
-        }
-        .metric-card:hover {
-            transform: translateY(-5px);
-            border-color: #00ffcc;
-        }
-        .metric-label { color: #888; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
-        .metric-value { color: #00ffcc; font-size: 32px; font-weight: 800; margin: 10px 0; }
-        </style>
-    """, unsafe_allow_html=True)
+        .stApp {{
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                        url("https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80");
+            background-size: cover;
+            background-attachment: fixed;
+        }}
 
+        /* Tarjetas estilo cápsula (bordes muy redondeados) */
+        .metric-card {{
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 40px; /* Semicírculos en las esquinas */
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }}
+
+        .metric-card:hover {{
+            border-color: #00ffcc;
+            background: rgba(255, 255, 255, 0.12);
+            transform: scale(1.02);
+        }}
+
+        .metric-label {{ 
+            color: #ffffff; 
+            font-size: 0.9rem; 
+            font-weight: 500;
+            margin-bottom: 5px;
+        }}
+
+        .metric-value {{ 
+            color: #00ffcc; 
+            font-size: 2.2rem; 
+            font-weight: 800; 
+            text-shadow: 0 0 10px rgba(0,255,204,0.3);
+        }}
+
+        h1, h3 {{ 
+            color: white !important; 
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 def render_custom_metric(label, value, icon):
     st.markdown(f"""
         <div class="metric-card">
