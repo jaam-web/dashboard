@@ -81,7 +81,7 @@ def apply_pro_styles():
         .metric-card {{
             background: rgba(255, 255, 255, 0.07);
             border-radius: 40px; /* Semicírculos en las esquinas */
-            padding: 25px;
+            padding: 12px; /* <--- CAMBIA ESTO (Antes era 25px) */
             border: 1px solid rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(12px);
             text-align: center;
