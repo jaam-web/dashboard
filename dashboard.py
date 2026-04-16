@@ -7,35 +7,33 @@ from typing import Callable
 from supabase import create_client
 
 # ==========================================================
-# 1. ABSTRACCIÓN Y REPOSITORIOS (Capa de Datos)
+# 1. CAPA DE DATOS (SOLID)
 # ==========================================================
 
-class DataRepository(ABC):
+class RepositorioDatos(ABC):
     @abstractmethod
-    def fetch_data(self) -> pd.DataFrame:
+    def obtener_datos(self) -> pd.DataFrame:
         pass
 
-class SupabaseRepo(DataRepository):
-    def __init__(self, url: str, key: str):
-        self.url = url
-        self.key = key
+class RepositorioSupabase(RepositorioDatos):
+    def __init__(self, url: str, clave: str):
         try:
-            self.client = create_client(url, key)
+            self.cliente = create_client(url, clave)
         except:
-            self.client = None
+            self.cliente = None
 
-    def fetch_data(self) -> pd.DataFrame:
-        if not self.client: return pd.DataFrame()
-        query = self.client.table("mediciones").select("*").order("created_at", desc=True).limit(20).execute()
-        df = pd.DataFrame(query.data)
+    def obtener_datos(self) -> pd.DataFrame:
+        if not self.cliente: return pd.DataFrame()
+        consulta = self.cliente.table("mediciones").select("*").order("created_at", desc=True).limit(20).execute()
+        df = pd.DataFrame(consulta.data)
         if not df.empty:
             df['created_at'] = pd.to_datetime(df['created_at']).dt.strftime('%H:%M:%S')
         return df
 
-class MockRepo(DataRepository):
-    def fetch_data(self) -> pd.DataFrame:
+class RepositorioPrueba(RepositorioDatos):
+    def obtener_datos(self) -> pd.DataFrame:
         tiempos = [(pd.Timestamp.now() - pd.Timedelta(seconds=i*5)).strftime('%H:%M:%S') for i in range(20)]
-        data = {
+        datos = {
             'created_at': tiempos,
             'temperatura': np.random.uniform(22, 28, 20).round(1),
             'humedad': np.random.uniform(50, 70, 20).round(1),
@@ -44,158 +42,137 @@ class MockRepo(DataRepository):
             'radiacion_solar': np.random.uniform(200, 600, 20).round(0),
             'presion_atmosferica': np.random.uniform(1011, 1015, 20).round(1)
         }
-        return pd.DataFrame(data)
+        return pd.DataFrame(datos)
 
 # ==========================================================
-# 2. ORQUESTADOR (La función que maneja todo)
+# 2. ORQUESTADOR
 # ==========================================================
 
-def data_manager(primary_provider: Callable[[], pd.DataFrame], 
-                 backup_provider: Callable[[], pd.DataFrame]) -> tuple[pd.DataFrame, str]:
-    """
-    Maneja la lógica de obtención de datos sin que el Main sepa de dónde vienen.
-    """
+def gestor_de_datos(proveedor_principal: Callable[[], pd.DataFrame], 
+                    proveedor_respaldo: Callable[[], pd.DataFrame]) -> tuple[pd.DataFrame, str]:
     try:
-        df = primary_provider()
-        if df.empty: raise ValueError("DB Empty")
-        return df, "CONNECTED"
+        df = proveedor_principal()
+        if df.empty: raise ValueError("Sin datos")
+        return df, "📡 CONECTADO"
     except:
-        return backup_provider(), "SIMULATED"
+        return proveedor_respaldo(), "⚠️ SIMULACIÓN"
 
 # ==========================================================
-# 3. INTERFAZ ESTÉTICA (Semicírculos y Glassmorphism)
+# 3. INTERFAZ RESPONSIVA Y ESTÉTICA
 # ==========================================================
 
-def apply_pro_styles():
+def aplicar_estilos_profesionales():
     st.markdown(
-        f"""
+        """
         <style>
-        .stApp {{
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+        /* Fondo con imagen y filtro */
+        .stApp {
+            background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)),
                         url("https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80");
             background-size: cover;
             background-attachment: fixed;
-        }}
+        }
 
-        /* Tarjetas estilo cápsula (bordes muy redondeados) */
-        .metric-card {{
-            background: rgba(255, 255, 255, 0.07);
-            border-radius: 40px; /* Semicírculos en las esquinas */
-            padding: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(12px);
+        /* Contenedor Flex para evitar solapamiento en móviles */
+        .contenedor-metricas {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        /* Tarjetas estilo cápsula responsivas */
+        .tarjeta-metrica {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
             text-align: center;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-        }}
+            min-width: 160px;
+            flex: 1; /* Esto hace que se ajusten al ancho disponible */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
 
-        .metric-card:hover {{
-            border-color: #00ffcc;
-            background: rgba(255, 255, 255, 0.12);
-            transform: scale(1.02);
-        }}
+        .etiqueta-metrica { color: #ddd; font-size: 0.8rem; text-transform: uppercase; font-weight: 600; }
+        .valor-metrica { color: #00ffcc; font-size: 1.8rem; font-weight: 800; margin-top: 5px; }
 
-        .metric-label {{ 
-            color: #ffffff; 
-            font-size: 0.9rem; 
-            font-weight: 500;
-            margin-bottom: 5px;
-        }}
-
-        .metric-value {{ 
-            color: #00ffcc; 
-            font-size: 2.2rem; 
-            font-weight: 800; 
-            text-shadow: 0 0 10px rgba(0,255,204,0.3);
-        }}
-
-        h1, h3 {{ 
-            color: white !important; 
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
-        }}
+        /* Mejora para el área de gráficas */
+        .stChart {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 10px;
+        }
         </style>
         """,
         unsafe_allow_html=True
     )
-def render_custom_metric(label, value, icon):
-    st.markdown(f"""
-        <div class="metric-card">
-            <div class="metric-label">{icon} {label}</div>
-            <div class="metric-value">{value}</div>
+
+def renderizar_metrica(etiqueta, valor, icono):
+    """Crea un bloque HTML para cada métrica que se adapta a la pantalla"""
+    return f"""
+        <div class="tarjeta-metrica">
+            <div class="etiqueta-metrica">{icono} {etiqueta}</div>
+            <div class="valor-metrica">{valor}</div>
         </div>
-    """, unsafe_allow_html=True)
+    """
 
 # ==========================================================
-# 4. CONFIGURACIÓN EXTERNA (Para que el Main esté limpio)
+# 4. FÁBRICA DE MOTOR DE DATOS (Encapsulamiento)
 # ==========================================================
 
-def get_data_engine():
-    """
-    Fábrica de funciones: Aquí se configuran las credenciales.
-    El Main solo recibirá la función lista para usar.
-    """
-    # En producción usarías st.secrets
-    URL = "https://fbwbzmlffgxnrzgvaeak.supabase.co"
-    KEY = "TU_KEY_AQUI"
+def configurar_motor_datos():
+    # Credenciales encapsuladas
+    URL_SUPABASE = "https://fbwbzmlffgxnrzgvaeak.supabase.co"
+    KEY_SUPABASE = "TU_KEY_AQUI"
     
-    real_repo = SupabaseRepo(URL, KEY)
-    mock_repo = MockRepo()
+    repo_real = RepositorioSupabase(URL_SUPABASE, KEY_SUPABASE)
+    repo_falso = RepositorioPrueba()
     
-    # Retornamos una función que ya sabe qué hacer
-    return lambda: data_manager(real_repo.fetch_data, mock_repo.fetch_data)
+    return lambda: gestor_de_datos(repo_real.obtener_datos, repo_falso.obtener_datos)
 
 # ==========================================================
-# 5. MAIN (Totalmente agnóstico a la DB)
+# 5. PUNTO DE ENTRADA (Main) - SIN REFERENCIAS A DB
 # ==========================================================
 
-def main(engine: Callable[[], tuple[pd.DataFrame, str]]):
-    """
-    EL MAIN NO TIENE NADA DE SUPABASE.
-    Solo recibe el 'engine' y lo ejecuta.
-    """
-    st.set_page_config(page_title="PROCPIC Dashboard", layout="wide")
-    apply_pro_styles()
+def main(motor: Callable[[], tuple[pd.DataFrame, str]]):
+    st.set_page_config(page_title="Estación PROCPIC", layout="wide")
+    aplicar_estilos_profesionales()
     
     st.title("🛰️ Estación Meteorológica PROCPIC")
-    st.write("---")
     
-    placeholder = st.empty()
+    espacio_dinamico = st.empty()
 
     while True:
-        # Aquí se ejecuta la magia sin saber de dónde vienen los datos
-        df, status = engine()
+        datos, estado = motor()
 
-        with placeholder.container():
-            # Barra de estado minimalista
-            st.caption(f"Status: {status} | Last Sync: {pd.Timestamp.now().strftime('%H:%M:%S')}")
+        with espacio_dinamico.container():
+            st.caption(f"ESTADO: {estado} | 🕒 {pd.Timestamp.now().strftime('%H:%M:%S')}")
             
-            if not df.empty:
-                actual = df.iloc[0]
+            if not datos.empty:
+                actual = datos.iloc[0]
                 
-                # Fila 1
-                c1, c2, c3 = st.columns(3)
-                with c1: render_custom_metric("Temperatura", f"{actual['temperatura']}°C", "🌡️")
-                with c2: render_custom_metric("Humedad", f"{actual['humedad']}%", "💧")
-                with c3: render_custom_metric("Viento", f"{actual['velocidad_viento']} m/s", "💨")
+                # Renderizado con HTML personalizado para evitar solapamiento
+                st.markdown(f"""
+                    <div class="contenedor-metricas">
+                        {renderizar_metrica("Temperatura", f"{actual['temperatura']}°C", "🌡️")}
+                        {renderizar_metrica("Humedad", f"{actual['humedad']}%", "💧")}
+                        {renderizar_metrica("Viento", f"{actual['velocidad_viento']}m/s", "💨")}
+                        {renderizar_metrica("Presión", f"{actual['presion_atmosferica']}hPa", "⏲️")}
+                    </div>
+                """, unsafe_allow_html=True)
                 
-                st.write("")
-                
-                # Fila 2
-                c4, c5, c6 = st.columns(3)
-                with c4: render_custom_metric("Punto Rocío", f"{actual['punto_rocio']}°C", "🧊")
-                with c5: render_custom_metric("Radiación", f"{actual['radiacion_solar']} W/m²", "☀️")
-                with c6: render_custom_metric("Presión", f"{actual['presion_atmosferica']} hPa", "⏲️")
+                st.write("") # Espacio
 
-                # Gráficas
-                st.markdown("### 📊 Histórico Reciente")
-                df_plot = df.iloc[::-1].set_index('created_at')
-                st.line_chart(df_plot[['temperatura', 'humedad']], height=250)
+                # Sección de Gráficas mejorada
+                st.subheader("📊 Tendencia Temporal")
+                df_grafica = datos.iloc[::-1].set_index('created_at')
+                
+                # Usamos Area Chart para que se vea más moderno que una simple línea
+                st.area_chart(df_grafica[['temperatura', 'humedad']], height=250, use_container_width=True)
             
         time.sleep(5)
 
 if __name__ == "__main__":
-    # 1. Preparamos el motor de datos fuera del main
-    weather_engine = get_data_engine()
-    
-    # 2. Iniciamos el main pasándole la función manejadora
-    main(weather_engine)
+    motor_climatico = configurar_motor_datos()
+    main(motor_climatico)
