@@ -77,17 +77,19 @@ def apply_pro_styles():
             background-attachment: fixed;
         }}
 
-        /* Tarjetas estilo cápsula (bordes muy redondeados) */
-        .metric-card {{
+       /* Tarjetas estilo cápsula (bordes muy redondeados) */
+        .metric-card {
             background: rgba(255, 255, 255, 0.07);
-            border-radius: 40px; /* Semicírculos en las esquinas */
-            padding: 12px; /* <--- CAMBIA ESTO (Antes era 25px) */
+            border-radius: 40px; 
+            padding: 12px; 
+            margin: 15px; /* <--- AGREGA ESTA LÍNEA PARA LA SEPARACIÓN */
             border: 1px solid rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(12px);
             text-align: center;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
-        }}
+            display: inline-block; /* Opcional: asegura que respeten el margen lateral */
+        }
 
         .metric-card:hover {{
             border-color: #00ffcc;
