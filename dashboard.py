@@ -88,7 +88,11 @@ def apply_pro_styles():
             text-align: center;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
-            display: inline-block; /* Opcional: asegura que respeten el margen lateral */
+            /* --- CAMBIOS PARA TAMAÑO UNIFORME --- */
+           display: inline-block;
+           width: 180px;      /* Esto obliga a que todos midan lo mismo de ancho */
+           min-height: 100px; /* Esto asegura que todos tengan la misma altura mínima */
+           vertical-align: top; /* Alinea los cuadros por la parte superior */
         }}
 
         .metric-card:hover {{
