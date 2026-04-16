@@ -1,14 +1,5 @@
-# Interfaz de usuario y dashboard
 streamlit>=1.30.0
-
-# Cliente para la base de datos (Supabase)
 supabase>=2.3.0
-
-# Procesamiento de datos y tablas
 pandas>=2.0.0
-
-# Manejo de peticiones HTTP (dependencia de supabase)
+numpy>=1.24.0
 httpx>=0.25.0
-
-# Opcional: Si decides usar variables de entorno para las Keys
-#python-dotenv>=1.0.0
