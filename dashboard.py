@@ -91,7 +91,7 @@ def apply_pro_styles():
             /* --- CAMBIOS PARA TAMAÑO UNIFORME --- */
            display: inline-block;
            width: 240px;      /* Esto obliga a que todos midan lo mismo de ancho */
-           min-height: 200px; /* Esto asegura que todos tengan la misma altura mínima */
+           min-height: 140px; /* Esto asegura que todos tengan la misma altura mínima */
            vertical-align: top; /* Alinea los cuadros por la parte superior */
         }}
 
